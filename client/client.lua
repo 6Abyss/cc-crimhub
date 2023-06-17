@@ -34,32 +34,28 @@ RegisterCommand("c:menu", function()
     TriggerEvent('cc-crimhub:cl:openmenu')
 end)
 
+
 RegisterNetEvent('cc-crimhub:cl:openmenu', function()
-    local crimhubMenu = {}
-    crimhubMenu[#crimhubMenu + 1] = {
-        header = Lang:t("menu.header"),
-        icon = "fas fa-building-columns",
-        isMenuHeader = true,
-    }
-    crimhubMenu[#crimhubMenu + 1] = {
-        header = Lang:t("menu.availability"),
-        txt = Lang:t("menu.availability_txt"),
-        icon = 'fas fa-clock',
-        isSubMenu = true,
-        params = {
+    lib.registerContext({
+        id = 'crimhubMenu',
+        title = Lang:t("menu.header"),
+        options = {
+          {
+            title = Lang:t("menu.availability"),
+            description =  Lang:t("menu.availability_txt"),
+            icon = 'fas fa-clock',
             event = "cc-crimhub:cl:checkavailability",
-        }
-    }
-    crimhubMenu[#crimhubMenu + 1] = {
-        header = Lang:t("menu.equipment"),
-        txt = Lang:t("menu.equipment_txt"),
-        icon = 'fas fa-laptop-code',
-        isSubMenu = true,
-        params = {
+            arrow = true,
+          },{
+            title = Lang:t("menu.equipment"),
+            description =  Lang:t("menu.availability_txt"),
+            icon = 'fas fa-laptop-code',
             event = "cc-crimhub:cl:equipment",
+            arrow = true,
+          },
         }
-    }
-    exports[Config.Menu]:openMenu(crimhubMenu)
+      })
+      lib.showContext('crimhubMenu')
 end)
 
 function AvailabilityLabel(bool)
@@ -71,121 +67,97 @@ function AvailabilityLabel(bool)
 end
 
 RegisterNetEvent("cc-crimhub:cl:checkavailability", function()
-    local availabilityMenu = {}
-    availabilityMenu[#availabilityMenu + 1] = {
-        header = Lang:t("menu.availability"),
-        icon = 'fas fa-clock',
-        isMenuHeader = true,
-    }
-    availabilityMenu[#availabilityMenu + 1] = {
-        header = Lang:t("bank.pinkcage"),
-        txt = AvailabilityLabel(exports['cc-fleecaheist']:CheckStatus('pinkcage')),
-        icon = "fas fa-shop",
-    }
-    availabilityMenu[#availabilityMenu + 1] = {
-        header = Lang:t("bank.legionsquare"),
-        txt = AvailabilityLabel(exports['cc-fleecaheist']:CheckStatus('legionsquare')),
-        icon = "fas fa-shop",
-    }
-    availabilityMenu[#availabilityMenu + 1] = {
-        header = Lang:t("bank.hawick"),
-        txt = AvailabilityLabel(exports['cc-fleecaheist']:CheckStatus('hawick')),
-        icon = "fas fa-shop",
-    }
-    availabilityMenu[#availabilityMenu + 1] = {
-        header = Lang:t("bank.delperro"),
-        txt = AvailabilityLabel(exports['cc-fleecaheist']:CheckStatus('delperro')),
-        icon = "fas fa-shop",
-    }
-    availabilityMenu[#availabilityMenu + 1] = {
-        header = Lang:t("bank.greatocean"),
-        txt = AvailabilityLabel(exports['cc-fleecaheist']:CheckStatus('greatocean')),
-        icon = "fas fa-shop",
-    }
-    availabilityMenu[#availabilityMenu + 1] = {
-        header = Lang:t("bank.harmony"),
-        txt = AvailabilityLabel(exports['cc-fleecaheist']:CheckStatus('harmony')),
-        icon = "fas fa-shop",
-    }
-    availabilityMenu[#availabilityMenu + 1] = {
-        header = Lang:t("bank.paleto"),
-        txt = AvailabilityLabel(exports['cc-paletoheist']:CheckStatus()),
-        icon = "fas fa-building-columns",
-    }
-    availabilityMenu[#availabilityMenu + 1] = {
-        header = Lang:t("bank.pacific"),
-        txt = AvailabilityLabel(exports['cc-pacificheist']:CheckStatus()),
-        icon = "fas fa-building-columns",
-    }
-    availabilityMenu[#availabilityMenu + 1] = {
-        header = Lang:t("menu.back"),
-        icon = 'fa-solid fa-circle-chevron-left',
-        params = {
-            event = "cc-crimhub:cl:openmenu",
-        }
-    }
-    exports[Config.Menu]:openMenu(availabilityMenu)
+    QBCore.Functions.TriggerCallback("cc-crimhub:server:getCops", function(enoughCops)
+        local header = {}
+        for k, v in pairs(Config.AvailableList) do
+            if enoughCops >= v.minCops then
+                header[#header+1] = {
+                    title = v.Header,
+                    description = "Available",
+                    icon = v.icon,
+                }
+            else
+                header[#header+1] = {
+                    title = v.Header,
+                    description = "Not Available",
+                    icon = v.icon,
+                }
+            end
+        end
+            header[#header+1] = {
+                title = Lang:t("menu.back"),
+                icon = 'fa-solid fa-circle-chevron-left',
+                event = "cc-crimhub:cl:openmenu",
+                arrow = false,
+            }
+                lib.registerContext({
+                    id = 'testing',
+                    title = Lang:t("menu.equipment"),
+                    onExit = function()
+                    end,
+                    options = header,
+                })
+          lib.showContext('testing')
+
+    end)
 end)
 
 RegisterNetEvent("cc-crimhub:cl:equipment", function()
     local equipmentMenu = {}
-    equipmentMenu[#equipmentMenu + 1] = {
-        header = Lang:t("menu.equipment"),
-        icon = 'fas fa-circle-info',
-        isMenuHeader = true,
-    }
-    for i=1, #Config.EquipmentMenu do 
-        v = Config.EquipmentMenu[i]
-        equipmentMenu[#equipmentMenu + 1] = {
-            header = v.label,
-            txt = v.txt,
-            icon = v.icon,
-            isSubMenu = true,
-            params = {
+        for i=1, #Config.EquipmentMenu do 
+            v = Config.EquipmentMenu[i]
+            equipmentMenu[#equipmentMenu + 1] = {
+                title = v.label,
+                icon = v.icon,
+                description = v.txt,
                 event = "cc-crimhub:cl:equipment2",
-                args = { menu = i }
+                args = { menu = i },
+                arrow = false,
             }
-        }
-    end
-    equipmentMenu[#equipmentMenu + 1] = {
-        header = Lang:t("menu.back"),
-        icon = 'fa-solid fa-circle-chevron-left',
-        params = {
+        end
+        equipmentMenu[#equipmentMenu + 1] = {
+            title = Lang:t("menu.back"),
+            icon = 'fa-solid fa-circle-chevron-left',
             event = "cc-crimhub:cl:openmenu",
+            arrow = false,
         }
-    }
-    exports[Config.Menu]:openMenu(equipmentMenu)
+            lib.registerContext({
+                id = 'equiptment',
+                title = Lang:t("menu.equipment"),
+                onExit = function()
+                end,
+                options = equipmentMenu,
+            })
+      lib.showContext('equiptment')
 end)
 
 RegisterNetEvent("cc-crimhub:cl:equipment2", function(data)
     local menu = Config.EquipmentMenu[data.menu]
     local items = menu.items
     local equipmentMenu = {}
-    equipmentMenu[#equipmentMenu + 1] = {
-        header = menu.label,
-        icon = menu.icon,
-        isMenuHeader = true,
-    }
     for i=1, #items do
         v = items[i]
         equipmentMenu[#equipmentMenu + 1] = {
-            header = v.label,
-            txt = v.txt,
+            title = v.label,
             icon = v.icon,
-            params = {
-                event = "cc-crimhub:cl:buyequipment",
-                args = { data = v }
-            }
+            description = v.txt,
+            event = "cc-crimhub:cl:buyequipment",
+            args = { data = v },
+            arrow = false,
         }
     end
-    equipmentMenu[#equipmentMenu + 1] = {
-        header = Lang:t("menu.back"),
-        icon = 'fa-solid fa-circle-chevron-left',
-        params = {
+        equipmentMenu[#equipmentMenu + 1] = {
+            title = Lang:t("menu.back"),
+            icon = 'fa-solid fa-circle-chevron-left',
             event = "cc-crimhub:cl:equipment",
+            arrow = false,
         }
-    }
-    exports[Config.Menu]:openMenu(equipmentMenu)
+        lib.registerContext({
+            id = 'equipmentMenu2',
+            title = menu.label,
+            options = equipmentMenu,
+          })
+          lib.showContext('equipmentMenu2')
 end)
 
 RegisterNetEvent("cc-crimhub:cl:buyequipment", function(data)

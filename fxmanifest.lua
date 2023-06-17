@@ -17,6 +17,7 @@ shared_scripts {
    '@qb-core/shared/locale.lua',
    'locales/en.lua', -- Change to preferred language 
    'shared/config.lua',
+   '@ox_lib/init.lua',
 }
 
 lua54 'yes'

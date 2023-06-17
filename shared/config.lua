@@ -13,6 +13,19 @@ Config.Peds = {
     }
 }
 
+Config.AvailableList = {
+    [1] = {
+        Header = "Fleeca Banks",
+        icon = "fa-solid fa-building-columns",
+        minCops = 2,
+    },
+    [2] = {
+        Header = "Jewellery Store",
+        icon = "fa-solid fa-gem",
+        minCops = 2,
+    },
+}
+
 Config.EquipmentMenu = {
     [1] = {
         label = "Laptops",
